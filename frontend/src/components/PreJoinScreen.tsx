@@ -258,48 +258,10 @@ export function PreJoinScreen({ meetingTitle, isHost, onJoin }: PreJoinScreenPro
           />
           {!cameraEnabled && (
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-900/90">
-              <div className="relative group">
-                {user?.profile_pic ? (
-                  <img src={user.profile_pic} alt="Avatar" className="w-24 h-24 rounded-full object-cover shadow-lg border-2 border-line bg-white" />
-                ) : (
-                  <div className="w-24 h-24 rounded-full flex items-center justify-center font-bold text-3xl shadow-lg border-2 border-line" style={{ backgroundColor: user?.avatar_color || "#2563eb", color: "white" }}>
-                    {user?.name?.[0]?.toUpperCase() || "P"}
-                  </div>
-                )}
-                <button 
-                  type="button" 
-                  disabled={updatingAvatar}
-                  onClick={() => {
-                    const options = Array.from({ length: 4 }).map((_, i) => `https://api.dicebear.com/7.x/bottts/svg?seed=${user?.email || "pymeet"}${i}${Date.now()}`);
-                    setAvatarOptions(options);
-                    setShowAvatarPicker(!showAvatarPicker);
-                  }} 
-                  className="absolute bottom-0 right-0 p-1.5 bg-cyan-400 text-slate-950 rounded-full shadow-lg hover:bg-cyan-300 transition-colors disabled:opacity-50"
-                  title="Change Avatar"
-                >
-                  <User size={16} />
-                </button>
+              <div className="grid h-20 w-20 place-items-center rounded-full bg-slate-800 text-slate-400 shadow-lg border border-slate-700">
+                <VideoOff size={32} />
               </div>
               <span className="mt-4 text-slate-400 font-medium text-sm">Camera is off</span>
-
-              {showAvatarPicker && (
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 mt-20 w-64 p-3 rounded-xl border border-line bg-slate-950/95 backdrop-blur shadow-2xl z-20">
-                  <p className="text-xs text-slate-400 text-center mb-2">Choose an Avatar</p>
-                  <div className="flex flex-wrap justify-center gap-3">
-                    <button type="button" disabled={updatingAvatar} onClick={() => handleAvatarChange("")} className="w-10 h-10 rounded-full flex items-center justify-center bg-slate-800 text-[10px] border border-line hover:border-cyan-400 transition">None</button>
-                    {avatarOptions.map((opt, i) => (
-                      <button key={i} type="button" disabled={updatingAvatar} onClick={() => handleAvatarChange(opt)} className="w-10 h-10 rounded-full border-2 border-transparent hover:border-cyan-400 transition bg-white overflow-hidden">
-                        <img src={opt} alt="Option" className="w-full h-full object-cover" />
-                      </button>
-                    ))}
-                  </div>
-                  <div className="mt-2 text-center">
-                    <button type="button" disabled={updatingAvatar} onClick={() => {
-                      setAvatarOptions(Array.from({ length: 4 }).map((_, i) => `https://api.dicebear.com/7.x/bottts/svg?seed=${user?.email || "pymeet"}${i}${Date.now()}`));
-                    }} className="text-xs text-cyan-400 hover:underline">Shuffle</button>
-                  </div>
-                </div>
-              )}
             </div>
           )}
 
@@ -324,7 +286,7 @@ export function PreJoinScreen({ meetingTitle, isHost, onJoin }: PreJoinScreenPro
           </div>
         </div>
 
-        <div className="mb-6 grid gap-4 sm:grid-cols-2">
+        <div className="mb-6 grid gap-4 sm:grid-cols-3">
           <div className="flex flex-col gap-1">
             <label className="text-sm font-semibold text-slate-400">Microphone</label>
             <div className="relative">
@@ -364,6 +326,50 @@ export function PreJoinScreen({ meetingTitle, isHost, onJoin }: PreJoinScreenPro
                 ))}
               </select>
             </div>
+          </div>
+          
+          <div className="flex flex-col gap-1 relative">
+            <label className="text-sm font-semibold text-slate-400">Profile Avatar</label>
+            <div className="flex items-center gap-3">
+              {user?.profile_pic ? (
+                <img src={user.profile_pic} alt="Avatar" className="w-10 h-10 rounded-full object-cover border border-line bg-white" />
+              ) : (
+                <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm border border-line" style={{ backgroundColor: user?.avatar_color || "#2563eb", color: "white" }}>
+                  {user?.name?.[0]?.toUpperCase() || "P"}
+                </div>
+              )}
+              <button 
+                type="button"
+                disabled={updatingAvatar}
+                onClick={() => {
+                  const options = Array.from({ length: 4 }).map((_, i) => `https://api.dicebear.com/7.x/bottts/svg?seed=${user?.email || "pymeet"}${i}${Date.now()}`);
+                  setAvatarOptions(options);
+                  setShowAvatarPicker(!showAvatarPicker);
+                }}
+                className="text-xs font-medium bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 px-3 py-2 rounded-lg transition-colors disabled:opacity-50 flex items-center gap-1.5"
+              >
+                <User size={14} /> Change
+              </button>
+            </div>
+
+            {showAvatarPicker && (
+              <div className="absolute top-full left-0 mt-2 w-64 p-3 rounded-xl border border-line bg-slate-950/95 backdrop-blur shadow-2xl z-20">
+                <p className="text-xs text-slate-400 text-center mb-2">Choose an Avatar</p>
+                <div className="flex flex-wrap justify-center gap-3">
+                  <button type="button" disabled={updatingAvatar} onClick={() => handleAvatarChange("")} className="w-10 h-10 rounded-full flex items-center justify-center bg-slate-800 text-[10px] border border-line hover:border-cyan-400 transition">None</button>
+                  {avatarOptions.map((opt, i) => (
+                    <button key={i} type="button" disabled={updatingAvatar} onClick={() => handleAvatarChange(opt)} className="w-10 h-10 rounded-full border-2 border-transparent hover:border-cyan-400 transition bg-white overflow-hidden">
+                      <img src={opt} alt="Option" className="w-full h-full object-cover" />
+                    </button>
+                  ))}
+                </div>
+                <div className="mt-2 text-center">
+                  <button type="button" disabled={updatingAvatar} onClick={() => {
+                    setAvatarOptions(Array.from({ length: 4 }).map((_, i) => `https://api.dicebear.com/7.x/bottts/svg?seed=${user?.email || "pymeet"}${i}${Date.now()}`));
+                  }} className="text-xs text-cyan-400 hover:underline">Shuffle</button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
