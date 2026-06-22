@@ -142,7 +142,7 @@ export function MeetingRoom() {
     };
   }, [meetingId, navigate, socket]);
 
-  const localParticipant = useMemo<RoomParticipant | undefined>(() => participants.find((p) => p.id === user?.id) || (user ? { sid: socket?.id || "local", id: user.id, name: user.name, email: user.email, avatar_color: user.avatar_color, is_host: meeting?.host.id === user.id } : undefined), [meeting?.host.id, participants, socket?.id, user]);
+  const localParticipant = useMemo<RoomParticipant | undefined>(() => participants.find((p) => p.id === user?.id) || (user ? { sid: socket?.id || "local", id: user.id, name: user.name, email: user.email, avatar_color: user.avatar_color, profile_pic: user.profile_pic, is_host: meeting?.host.id === user.id } : undefined), [meeting?.host.id, participants, socket?.id, user]);
 
   const allParticipants = useMemo(() => {
     if (localParticipant && !participants.some((p) => p.sid === localParticipant.sid)) {
