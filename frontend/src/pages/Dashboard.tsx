@@ -115,7 +115,9 @@ export function Dashboard() {
               {upcomingMeetings.length === 0 ? (
                 <>
                   <div className="h-40 w-full mb-2 flex items-center justify-center">
-                    <img src="https://illustrations.popsy.co/amber/calendar.svg" alt="Calendar" className="h-32 opacity-80 dark:opacity-60 drop-shadow-sm mix-blend-multiply dark:mix-blend-screen" />
+                    <div className="h-32 w-32 rounded-full bg-slate-100 dark:bg-slate-800/50 flex items-center justify-center">
+                      <CalendarDays size={64} strokeWidth={1} className="text-slate-400 dark:text-slate-500" />
+                    </div>
                   </div>
                   <h3 className="text-[15px] font-semibold text-slate-700 dark:text-slate-300 mb-1">No meetings scheduled.</h3>
                   <button onClick={() => navigate('/scheduler')} className="text-blue-600 dark:text-blue-400 text-sm font-semibold hover:underline flex items-center gap-1 mt-1">
