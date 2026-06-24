@@ -46,6 +46,8 @@ class RoomUser:
     is_host: bool
     is_co_host: bool = False
     is_waiting: bool = False
+    mic_enabled: bool = True
+    camera_enabled: bool = True
 
 
 rooms: dict[str, dict[str, RoomUser]] = {}
@@ -93,7 +95,7 @@ async def connect(sid: str, environ: dict[str, Any], auth: dict[str, Any] | None
     user = await asyncio.to_thread(_sync_get_user, (auth or {}).get("token"))
     if not user:
         raise ConnectionRefusedError("Authentication required")
-    sid_to_user[sid] = RoomUser(sid=sid, id=user.id, name=user.name, email=user.email, avatar_color=user.avatar_color, profile_pic=user.profile_pic, is_host=False, is_co_host=False)
+    sid_to_user[sid] = RoomUser(sid=sid, id=user.id, name=user.name, email=user.email, avatar_color=user.avatar_color, profile_pic=user.profile_pic, is_host=False, is_co_host=False, mic_enabled=True, camera_enabled=True)
     await sio.emit("connected", {"sid": sid}, to=sid)
 
 
@@ -141,6 +143,21 @@ async def join_room(sid: str, data: dict[str, Any]):
     await sio.emit("room-joined", payload, to=sid)
     await sio.emit("participant-list", {"participants": _serialize(room)}, room=meeting_id)
     await sio.emit("user-joined", {"user": asdict(user)}, room=meeting_id, skip_sid=sid)
+
+@sio.on("media-status-change")
+async def media_status_change(sid: str, data: dict[str, Any]):
+    meeting_id = sid_to_room.get(sid)
+    user = sid_to_user.get(sid)
+    if not meeting_id or not user:
+        return
+    if "micEnabled" in data:
+        user.mic_enabled = data["micEnabled"]
+    if "cameraEnabled" in data:
+        user.camera_enabled = data["cameraEnabled"]
+    
+    room = rooms.get(meeting_id)
+    if room:
+        await sio.emit("participant-list", {"participants": _serialize(room)}, room=meeting_id)
 
 
 @sio.on("admit-participant")

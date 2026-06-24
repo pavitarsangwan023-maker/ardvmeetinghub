@@ -112,9 +112,11 @@ export function useWebRTC(socket: Socket | null, meetingId: string, enabled: boo
         localStreamRef.current = stream;
         setLocalStream(stream);
         socket.emit("join-room", { meetingId });
+        socket.emit("media-status-change", { micEnabled: joinConfig.micEnabled, cameraEnabled: joinConfig.cameraEnabled });
       })
       .catch(() => {
         socket.emit("join-room", { meetingId });
+        socket.emit("media-status-change", { micEnabled: joinConfig.micEnabled, cameraEnabled: joinConfig.cameraEnabled });
       });
 
     return () => {
@@ -229,38 +231,44 @@ export function useWebRTC(socket: Socket | null, meetingId: string, enabled: boo
   }, [micEnabled]);
 
   const toggleMic = () => {
-    localStreamRef.current?.getAudioTracks().forEach((track) => { track.enabled = !track.enabled; setMicEnabled(track.enabled); });
+    localStreamRef.current?.getAudioTracks().forEach((track) => { 
+      track.enabled = !track.enabled; 
+      setMicEnabled(track.enabled); 
+      if (socket) socket.emit("media-status-change", { micEnabled: track.enabled });
+    });
   };
 
   const toggleCamera = async () => {
-  if (!localStreamRef.current) return;
+    if (!localStreamRef.current) return;
 
-  const track = localStreamRef.current.getVideoTracks()[0];
+    const track = localStreamRef.current.getVideoTracks()[0];
 
-  if (!track) return;
+    if (!track) return;
 
-  // Turn OFF
-  if (track.enabled) {
-    track.enabled = false;
-    setCameraEnabled(false);
-    return;
-  }
-
-  // Turn ON
-  track.enabled = true;
-
-  peers.current.forEach((peer) => {
-    const sender = peer
-      .getSenders()
-      .find((s) => s.track?.kind === "video");
-
-    if (sender) {
-      sender.replaceTrack(track);
+    // Turn OFF
+    if (track.enabled) {
+      track.enabled = false;
+      setCameraEnabled(false);
+      if (socket) socket.emit("media-status-change", { cameraEnabled: false });
+      return;
     }
-  });
 
-  setCameraEnabled(true);
-};
+    // Turn ON
+    track.enabled = true;
+
+    peers.current.forEach((peer) => {
+      const sender = peer
+        .getSenders()
+        .find((s) => s.track?.kind === "video");
+
+      if (sender) {
+        sender.replaceTrack(track);
+      }
+    });
+
+    setCameraEnabled(true);
+    if (socket) socket.emit("media-status-change", { cameraEnabled: true });
+  };
 
   const shareScreen = async () => {
   if (!localStreamRef.current) return;

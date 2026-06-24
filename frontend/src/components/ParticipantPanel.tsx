@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { Crown, UserCheck, UserMinus, X, Shield, ShieldOff } from "lucide-react";
+import { Crown, UserCheck, UserMinus, X, Shield, ShieldOff, Mic, MicOff, Video, VideoOff } from "lucide-react";
 import type { Socket } from "socket.io-client";
 import type { RoomParticipant } from "../types";
 import { Avatar } from "./Avatar";
@@ -24,10 +24,22 @@ export function ParticipantPanel({ open, participants, waitingParticipants = [],
             <Avatar user={participant} size="sm" />
             <div className="min-w-0 flex-1">
               <div className="truncate text-sm font-medium text-slate-900 dark:text-white">{participant.name} {participant.sid === currentSid && "(You)"}</div>
-              <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+              <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mt-1">
                 {participant.is_host && <span className="flex items-center gap-1 text-amber-500 dark:text-amber-300"><Crown size={13} /> Host</span>}
                 {participant.is_co_host && !participant.is_host && <span className="flex items-center gap-1 text-slate-400 dark:text-slate-300"><Crown size={13} /> Co-Host</span>}
               </div>
+            </div>
+            <div className="flex items-center gap-2 mr-2">
+              {participant.mic_enabled ? (
+                <Mic size={16} className="text-slate-400" />
+              ) : (
+                <MicOff size={16} className="text-rose-500" />
+              )}
+              {participant.camera_enabled ? (
+                <Video size={16} className="text-slate-400" />
+              ) : (
+                <VideoOff size={16} className="text-rose-500" />
+              )}
             </div>
             <div className="flex items-center gap-1">
               {isPrimaryHost && !participant.is_host && participant.sid !== currentSid && (

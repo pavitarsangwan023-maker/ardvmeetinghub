@@ -40,6 +40,8 @@ export interface RoomParticipant {
   is_host: boolean;
   is_co_host?: boolean;
   is_waiting?: boolean;
+  mic_enabled?: boolean;
+  camera_enabled?: boolean;
 }
 
 export interface ChatMessage {
