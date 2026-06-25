@@ -4,7 +4,7 @@ import type { Socket } from "socket.io-client";
 import type { RoomParticipant } from "../types";
 import { Avatar } from "./Avatar";
 
-export function ParticipantPanel({ open, participants, waitingParticipants = [], socket, meetingId, currentSid, onClose }: { open: boolean; participants: RoomParticipant[]; waitingParticipants?: RoomParticipant[]; socket: Socket | null; meetingId: string; currentSid?: string; onClose: () => void }) {
+export function ParticipantPanel({ open, participants, waitingParticipants = [], socket, meetingId, currentSid, onClose, localMicEnabled, localCameraEnabled }: { open: boolean; participants: RoomParticipant[]; waitingParticipants?: RoomParticipant[]; socket: Socket | null; meetingId: string; currentSid?: string; onClose: () => void; localMicEnabled?: boolean; localCameraEnabled?: boolean }) {
   const self = participants.find((p) => p.sid === currentSid);
   const canManage = Boolean(self?.is_host || self?.is_co_host);
   const isPrimaryHost = Boolean(self?.is_host);
@@ -30,12 +30,12 @@ export function ParticipantPanel({ open, participants, waitingParticipants = [],
               </div>
             </div>
             <div className="flex items-center gap-2 mr-2">
-              {participant.mic_enabled ? (
+              {(participant.sid === currentSid && localMicEnabled !== undefined ? localMicEnabled : participant.mic_enabled) ? (
                 <Mic size={16} className="text-slate-400" />
               ) : (
                 <MicOff size={16} className="text-rose-500" />
               )}
-              {participant.camera_enabled ? (
+              {(participant.sid === currentSid && localCameraEnabled !== undefined ? localCameraEnabled : participant.camera_enabled) ? (
                 <Video size={16} className="text-slate-400" />
               ) : (
                 <VideoOff size={16} className="text-rose-500" />
