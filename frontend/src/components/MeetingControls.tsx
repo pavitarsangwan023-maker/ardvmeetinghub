@@ -148,14 +148,14 @@ export function MeetingControls({ localStream, isHost, micEnabled, cameraEnabled
 
       {/* Popovers attached to the root of MeetingControls */}
       {showReactions && (
-        <div className="pointer-events-auto absolute bottom-[100px] left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-3xl border border-line bg-slate-900/95 p-3 shadow-2xl backdrop-blur-xl z-50">
+        <div className="pointer-events-auto absolute bottom-[100px] left-1/2 flex -translate-x-1/2 items-center gap-1 sm:gap-2 rounded-[2rem] border border-line bg-slate-900/95 p-2 sm:p-3 shadow-2xl backdrop-blur-xl z-50 max-w-[95vw] overflow-x-auto no-scrollbar">
           {emojis.map((emoji) => (
-            <button key={emoji} onClick={() => { onReact(emoji); setShowEmojiPicker(false); }} className="transform rounded-full p-2 transition hover:scale-125 hover:bg-white/10 active:scale-95 group">
+            <button key={emoji} onClick={() => { onReact(emoji); setShowEmojiPicker(false); }} className="shrink-0 transform rounded-full p-2 transition hover:scale-125 hover:bg-white/10 active:scale-95 group">
               <span className="text-3xl sm:text-4xl drop-shadow-md group-hover:drop-shadow-xl">{emoji}</span>
             </button>
           ))}
-          <div className="w-px h-10 bg-white/10 mx-1"></div>
-          <button onClick={() => setShowEmojiPicker((v) => !v)} className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-800 text-cyan-400 transition hover:scale-110 hover:bg-slate-700 active:scale-95 border border-slate-700">
+          <div className="shrink-0 w-px h-8 sm:h-10 bg-white/10 mx-1"></div>
+          <button onClick={() => setShowEmojiPicker((v) => !v)} className="shrink-0 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-slate-800 text-cyan-400 transition hover:scale-110 hover:bg-slate-700 active:scale-95 border border-slate-700">
             <Plus size={24} />
           </button>
         </div>
