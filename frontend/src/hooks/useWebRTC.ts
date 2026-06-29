@@ -351,8 +351,9 @@ export function useWebRTC(socket: Socket | null, meetingId: string, enabled: boo
       setScreenSharing(false);
     };
 
-  } catch (err) {
+  } catch (err: any) {
     console.error(err);
+    alert("Screen sharing failed. Your browser might not support it (e.g. older mobile browsers), or permission was denied.");
   }
 };
 
