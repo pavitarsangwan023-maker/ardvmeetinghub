@@ -11,7 +11,7 @@ from app.database import SessionLocal
 from app.models.meeting import Meeting
 from app.models.user import User
 from app.services.meeting_service import end_participation, get_meeting
-from app.services.ai_service import get_ai_response
+
 from app.utils.security import decode_token
 from app.models.chat import ChatMessage
 from app.config import settings
@@ -246,26 +246,6 @@ async def chat_message(sid: str, data: dict[str, Any]):
             return
         message_text = data.get("message", "")
         target_sid = data.get("to")
-        
-        # Check if message is for AI bot
-        is_ai_command = message_text.lower().startswith("@ai ")
-        if is_ai_command and not target_sid:
-            # Broadcast the user's message first
-            await asyncio.to_thread(_sync_save_chat, meeting_id, user.id, message_text)
-            await sio.emit("chat-message", {"message": message_text, "user": asdict(user), "sentAt": data.get("sentAt")}, room=meeting_id, skip_sid=sid)
-            
-            # Send AI processing indicator (optional, but good UX)
-            # await sio.emit("chat-message", {"message": "Typing...", "user": {"name": "AI Assistant", "avatar_color": "#10B981"}, "isSystem": True}, room=meeting_id)
-
-            # Process AI request asynchronously
-            prompt = message_text[4:].strip()
-            ai_reply = await asyncio.to_thread(get_ai_response, prompt)
-            
-            # Broadcast AI response
-            ai_user = {"id": -1, "name": "AI Assistant 🤖", "email": "ai@pymeet.local", "avatar_color": "#10B981"}
-            await sio.emit("chat-message", {"message": ai_reply, "user": ai_user, "sentAt": datetime.now(timezone.utc).isoformat()}, room=meeting_id)
-            return
-
         if target_sid and target_sid in sid_to_room and sid_to_room[target_sid] == meeting_id:
             await sio.emit("chat-message", {"message": message_text, "user": asdict(user), "sentAt": data.get("sentAt"), "isPrivate": True}, to=target_sid)
             

@@ -6,13 +6,86 @@ import type { ChatMessage, RoomParticipant } from "../types";
 import { meetingApi } from "../services/api";
 import { Avatar } from "./Avatar";
 import EmojiPicker, { Theme, EmojiStyle } from "emoji-picker-react";
-import { Smile } from "lucide-react";
+import { Smile, BookOpen, Search, Loader2 } from "lucide-react";
+
+function DictionaryWidget({ onClose }: { onClose: () => void }) {
+  const [word, setWord] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState<{ english?: string, hindi?: string, error?: string } | null>(null);
+
+  const searchWord = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!word.trim()) return;
+    setLoading(true);
+    setResult(null);
+    try {
+      const [engRes, hiRes] = await Promise.all([
+        fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word.trim()}`),
+        fetch(`https://api.mymemory.translated.net/get?q=${word.trim()}&langpair=en|hi`)
+      ]);
+      let english = "";
+      if (engRes.ok) {
+        const engData = await engRes.json();
+        english = engData[0]?.meanings[0]?.definitions[0]?.definition || "No definition found.";
+      } else {
+        english = "Word not found in English dictionary.";
+      }
+      
+      let hindi = "";
+      if (hiRes.ok) {
+        const hiData = await hiRes.json();
+        hindi = hiData.responseData?.translatedText || "";
+      }
+
+      setResult({ english, hindi });
+    } catch (err) {
+      setResult({ error: "Failed to fetch meaning. Check connection." });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="absolute bottom-full right-0 mb-2 w-72 sm:w-80 rounded-xl border border-line bg-slate-900 p-3 shadow-xl overflow-hidden flex flex-col gap-3 z-50">
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-semibold flex items-center gap-1.5"><BookOpen size={14} className="text-cyan-400" /> Dictionary</h3>
+        <button onClick={onClose} className="text-slate-400 hover:text-white"><X size={14} /></button>
+      </div>
+      <form onSubmit={searchWord} className="flex gap-2">
+        <input autoFocus value={word} onChange={e => setWord(e.target.value)} placeholder="Enter a word..." className="min-w-0 flex-1 rounded-md border border-line bg-slate-950 px-2 py-1.5 text-sm outline-none focus:border-cyan-400" />
+        <button type="submit" disabled={!word.trim() || loading} className="rounded-md bg-cyan-500/20 px-2.5 text-cyan-400 hover:bg-cyan-500/30 disabled:opacity-50"><Search size={14} /></button>
+      </form>
+      {loading && <div className="py-4 flex justify-center"><Loader2 size={18} className="animate-spin text-cyan-400" /></div>}
+      {result && (
+        <div className="text-sm space-y-2 max-h-40 overflow-y-auto pr-1 text-slate-300">
+          {result.error ? (
+            <p className="text-rose-400">{result.error}</p>
+          ) : (
+            <>
+              <div>
+                <span className="font-semibold text-cyan-300 block mb-0.5">English Meaning:</span>
+                {result.english}
+              </div>
+              {result.hindi && (
+                <div>
+                  <span className="font-semibold text-emerald-300 block mb-0.5">Hindi Translation:</span>
+                  {result.hindi}
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export function ChatPanel({ meetingId, open, socket, localUser, participants = [], chatEnabled = true, onClose, onNewMessage }: { meetingId: string; open: boolean; socket: Socket | null; localUser?: Partial<RoomParticipant>; participants?: RoomParticipant[]; chatEnabled?: boolean; onClose: () => void; onNewMessage?: () => void }) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [draft, setDraft] = useState("");
   const [recipient, setRecipient] = useState<string>("everyone");
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [showDictionary, setShowDictionary] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
@@ -105,16 +178,22 @@ export function ChatPanel({ meetingId, open, socket, localUser, participants = [
               </div>
               <div className="relative flex gap-2">
                 {showEmojiPicker && (
-                  <div className="absolute bottom-full right-0 mb-2">
+                  <div className="absolute bottom-full right-0 mb-2 z-50">
                     <EmojiPicker theme={Theme.DARK} emojiStyle={EmojiStyle.NATIVE} onEmojiClick={(e) => setDraft((d) => d + e.emoji)} />
                   </div>
                 )}
-                <button type="button" onClick={() => setShowEmojiPicker((v) => !v)} className="rounded-lg p-2 text-slate-400 hover:bg-white/10 hover:text-white" aria-label="Emoji">
-                  <Smile size={18} />
-                </button>
+                {showDictionary && <DictionaryWidget onClose={() => setShowDictionary(false)} />}
+                <div className="flex items-center gap-0.5">
+                  <button type="button" onClick={() => { setShowEmojiPicker((v) => !v); setShowDictionary(false); }} className="rounded-lg p-2 text-slate-400 hover:bg-white/10 hover:text-white" aria-label="Emoji">
+                    <Smile size={18} />
+                  </button>
+                  <button type="button" onClick={() => { setShowDictionary((v) => !v); setShowEmojiPicker(false); }} className="rounded-lg p-2 text-slate-400 hover:bg-white/10 hover:text-white" aria-label="Dictionary">
+                    <BookOpen size={18} />
+                  </button>
+                </div>
                 <form onSubmit={submit} className="flex min-w-0 flex-1 gap-2">
-                  <input value={draft} onChange={(e) => setDraft(e.target.value)} onClick={() => setShowEmojiPicker(false)} className="min-w-0 flex-1 rounded-lg border border-line bg-white/10 px-3 py-2 text-sm outline-none focus:border-cyan-300" placeholder="Type @ai to ask the bot, or type a message..." />
-                  <button type="submit" disabled={!draft.trim()} onClick={() => setShowEmojiPicker(false)} className="rounded-lg bg-cyan-400 px-3 text-slate-950 disabled:opacity-50" aria-label="Send"><Send size={18} /></button>
+                  <input value={draft} onChange={(e) => setDraft(e.target.value)} onClick={() => { setShowEmojiPicker(false); setShowDictionary(false); }} className="min-w-0 flex-1 rounded-lg border border-line bg-white/10 px-3 py-2 text-sm outline-none focus:border-cyan-300" placeholder="Type a message..." />
+                  <button type="submit" disabled={!draft.trim()} onClick={() => { setShowEmojiPicker(false); setShowDictionary(false); }} className="rounded-lg bg-cyan-400 px-3 text-slate-950 disabled:opacity-50" aria-label="Send"><Send size={18} /></button>
                 </form>
               </div>
             </>
