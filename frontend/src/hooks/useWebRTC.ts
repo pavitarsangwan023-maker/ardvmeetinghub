@@ -25,6 +25,7 @@ export function useWebRTC(socket: Socket | null, meetingId: string, enabled: boo
   const peers = useRef<Map<string, RTCPeerConnection>>(new Map());
   const participantsRef = useRef<RoomParticipant[]>([]);
   const localStreamRef = useRef<MediaStream | null>(null);
+  const allTracksRef = useRef<Set<MediaStreamTrack>>(new Set());
 
   const processedStream = useVirtualBackground(localStream, joinConfig?.backgroundType || "none", joinConfig?.backgroundSrc);
 
@@ -96,6 +97,8 @@ export function useWebRTC(socket: Socket | null, meetingId: string, enabled: boo
 
     navigator.mediaDevices.getUserMedia(constraints)
       .then((stream) => {
+        stream.getTracks().forEach(t => allTracksRef.current.add(t));
+        
         if (cancelled) {
           stream.getTracks().forEach((track) => track.stop());
           return;
@@ -200,6 +203,7 @@ export function useWebRTC(socket: Socket | null, meetingId: string, enabled: boo
           const newAudioTrack = newAudioStream.getAudioTracks()[0];
           
           if (newAudioTrack) {
+            allTracksRef.current.add(newAudioTrack);
             newAudioTrack.enabled = micEnabled;
             
             localStreamRef.current?.addTrack(newAudioTrack);
@@ -276,6 +280,8 @@ export function useWebRTC(socket: Socket | null, meetingId: string, enabled: boo
       video: true,
       audio: true,
     });
+    
+    displayStream.getTracks().forEach(t => allTracksRef.current.add(t));
 
     const screenTrack = displayStream.getVideoTracks()[0];
     const screenAudioTrack = displayStream.getAudioTracks()[0];
@@ -320,6 +326,7 @@ export function useWebRTC(socket: Socket | null, meetingId: string, enabled: boo
       const cameraStream = await navigator.mediaDevices.getUserMedia({
         video: true,
       });
+      cameraStream.getTracks().forEach(t => allTracksRef.current.add(t));
 
       const newCameraTrack = cameraStream.getVideoTracks()[0];
 
@@ -359,7 +366,12 @@ export function useWebRTC(socket: Socket | null, meetingId: string, enabled: boo
 
   const leave = () => {
     socket?.emit("user-left", { meetingId });
+    allTracksRef.current.forEach((track) => {
+      try { track.stop(); } catch(e) {}
+    });
+    allTracksRef.current.clear();
     localStreamRef.current?.getTracks().forEach((track) => track.stop());
+    localStream?.getTracks().forEach((track) => track.stop());
     peers.current.forEach((peer) => peer.close());
   };
 
