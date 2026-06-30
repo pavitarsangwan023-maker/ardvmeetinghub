@@ -470,7 +470,6 @@ async def _leave(sid: str):
                 db.close()
         await asyncio.to_thread(_sync_deactivate_meeting, meeting_id)
     
-    # Clean up empty rooms
     if meeting_id in rooms and not rooms[meeting_id]:
         del rooms[meeting_id]
         
@@ -478,3 +477,37 @@ async def _leave(sid: str):
     await sio.emit("user-left", {"sid": sid, "userId": user.id}, room=meeting_id)
     await sio.emit("participant-list", {"participants": _serialize(rooms.get(meeting_id, {}))}, room=meeting_id)
     sid_to_user.pop(sid, None)
+
+@sio.on("force-mute")
+async def force_mute(sid: str, data: dict[str, Any]):
+    meeting_id = str(data.get("meetingId", "")).upper()
+    target_sid = data.get("targetSid")
+    media_type = data.get("type")
+    host = sid_to_user.get(sid)
+    if not host or not (host.is_host or host.is_co_host):
+        return
+    if target_sid and target_sid in sid_to_room and sid_to_room[target_sid] == meeting_id:
+        await sio.emit("force-muted", {"type": media_type}, to=target_sid)
+
+@sio.on("request-unmute")
+async def request_unmute(sid: str, data: dict[str, Any]):
+    meeting_id = str(data.get("meetingId", "")).upper()
+    target_sid = data.get("targetSid")
+    media_type = data.get("type")
+    host = sid_to_user.get(sid)
+    if not host or not (host.is_host or host.is_co_host):
+        return
+    if target_sid and target_sid in sid_to_room and sid_to_room[target_sid] == meeting_id:
+        await sio.emit("unmute-request", {"type": media_type, "hostName": host.name}, to=target_sid)
+
+@sio.on("mute-all")
+async def mute_all(sid: str, data: dict[str, Any]):
+    meeting_id = str(data.get("meetingId", "")).upper()
+    media_type = data.get("type", "mic")
+    host = sid_to_user.get(sid)
+    if not host or not (host.is_host or host.is_co_host):
+        return
+    room = rooms.get(meeting_id, {})
+    for peer_sid, peer_user in room.items():
+        if not peer_user.is_host and peer_sid != sid:
+            await sio.emit("force-muted", {"type": media_type}, to=peer_sid)

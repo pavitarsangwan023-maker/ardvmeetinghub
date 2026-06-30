@@ -142,6 +142,33 @@ export function MeetingRoom() {
     };
   }, [meetingId, navigate, socket]);
 
+  useEffect(() => {
+    if (!socket) return;
+    const onForceMuted = ({ type }: { type: string }) => {
+      if (type === "mic" && micEnabled) toggleMic();
+      if (type === "camera" && cameraEnabled) toggleCamera();
+      // Use setTimeout to ensure state updates before alert blocks thread
+      setTimeout(() => alert(`The host has turned off your ${type === "mic" ? "microphone" : "camera"}.`), 100);
+    };
+    const onUnmuteRequest = ({ type, hostName }: { type: string; hostName: string }) => {
+      const isMic = type === "mic";
+      if ((isMic && micEnabled) || (!isMic && cameraEnabled)) return; // Already on
+      
+      const confirm = window.confirm(`${hostName} is requesting you to turn on your ${isMic ? "microphone" : "camera"}. Do you want to turn it on?`);
+      if (confirm) {
+        if (isMic) toggleMic();
+        else toggleCamera();
+      }
+    };
+    
+    socket.on("force-muted", onForceMuted);
+    socket.on("unmute-request", onUnmuteRequest);
+    return () => {
+      socket.off("force-muted", onForceMuted);
+      socket.off("unmute-request", onUnmuteRequest);
+    };
+  }, [socket, micEnabled, cameraEnabled, toggleMic, toggleCamera]);
+
   const localParticipant = useMemo<RoomParticipant | undefined>(() => {
     const remote = participants.find((p) => p.id === user?.id);
     if (remote) {

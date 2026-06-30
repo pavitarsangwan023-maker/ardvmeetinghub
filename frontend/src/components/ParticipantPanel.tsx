@@ -12,6 +12,12 @@ export function ParticipantPanel({ open, participants, waitingParticipants = [],
     <AnimatePresence>
       {open && <motion.aside initial={{ x: 380, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ x: 380, opacity: 0 }} className="fixed right-0 top-0 z-40 h-full w-full max-w-sm overflow-y-auto border-l border-line bg-slate-950/90 p-4 text-white shadow-soft backdrop-blur-xl">
         <div className="mb-4 flex items-center justify-between"><h2 className="font-semibold">Participants ({participants.length})</h2><button onClick={onClose} className="rounded-lg p-2 hover:bg-white/10" aria-label="Close participants"><X size={18} /></button></div>
+        
+        {canManage && participants.length > 1 && (
+           <div className="mb-4 flex gap-2">
+             <button onClick={() => socket?.emit("mute-all", { meetingId, type: "mic" })} className="flex-1 rounded-lg bg-slate-200 dark:bg-white/10 py-1.5 text-xs font-medium text-slate-800 dark:text-slate-200 hover:bg-slate-300 dark:hover:bg-white/20 transition-colors flex justify-center items-center gap-2"><MicOff size={14} /> Mute All Mics</button>
+           </div>
+        )}
         {canManage && waitingParticipants.length > 0 && <div className="mb-5">
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-sm font-semibold text-cyan-600 dark:text-cyan-300">Waiting room</h3>
@@ -29,17 +35,41 @@ export function ParticipantPanel({ open, participants, waitingParticipants = [],
                 {participant.is_co_host && !participant.is_host && <span className="flex items-center gap-1 text-slate-400 dark:text-slate-300"><Crown size={13} /> Co-Host</span>}
               </div>
             </div>
-            <div className="flex items-center gap-2 mr-2">
-              {(participant.sid === currentSid && localMicEnabled !== undefined ? localMicEnabled : participant.mic_enabled) ? (
-                <Mic size={16} className="text-slate-400" />
-              ) : (
-                <MicOff size={16} className="text-rose-500" />
-              )}
-              {(participant.sid === currentSid && localCameraEnabled !== undefined ? localCameraEnabled : participant.camera_enabled) ? (
-                <Video size={16} className="text-slate-400" />
-              ) : (
-                <VideoOff size={16} className="text-rose-500" />
-              )}
+            <div className="flex items-center mr-2">
+              {(() => {
+                const isMicOn = participant.sid === currentSid && localMicEnabled !== undefined ? localMicEnabled : participant.mic_enabled;
+                const canControl = canManage && participant.sid !== currentSid;
+                const handleMicClick = () => {
+                  if (!canControl) return;
+                  if (isMicOn) {
+                    socket?.emit("force-mute", { meetingId, targetSid: participant.sid, type: "mic" });
+                  } else {
+                    socket?.emit("request-unmute", { meetingId, targetSid: participant.sid, type: "mic" });
+                  }
+                };
+                return (
+                  <button onClick={handleMicClick} disabled={!canControl} className={`rounded-md p-1.5 ${canControl ? "hover:bg-slate-200 dark:hover:bg-white/10 cursor-pointer" : "cursor-default"} ${isMicOn ? "text-slate-400" : "text-rose-500"}`} title={canControl ? (isMicOn ? "Force mute microphone" : "Ask to unmute") : undefined}>
+                    {isMicOn ? <Mic size={16} /> : <MicOff size={16} />}
+                  </button>
+                );
+              })()}
+              {(() => {
+                const isCamOn = participant.sid === currentSid && localCameraEnabled !== undefined ? localCameraEnabled : participant.camera_enabled;
+                const canControl = canManage && participant.sid !== currentSid;
+                const handleCamClick = () => {
+                  if (!canControl) return;
+                  if (isCamOn) {
+                    socket?.emit("force-mute", { meetingId, targetSid: participant.sid, type: "camera" });
+                  } else {
+                    socket?.emit("request-unmute", { meetingId, targetSid: participant.sid, type: "camera" });
+                  }
+                };
+                return (
+                  <button onClick={handleCamClick} disabled={!canControl} className={`rounded-md p-1.5 ${canControl ? "hover:bg-slate-200 dark:hover:bg-white/10 cursor-pointer" : "cursor-default"} ${isCamOn ? "text-slate-400" : "text-rose-500"}`} title={canControl ? (isCamOn ? "Force turn off camera" : "Ask to start video") : undefined}>
+                    {isCamOn ? <Video size={16} /> : <VideoOff size={16} />}
+                  </button>
+                );
+              })()}
             </div>
             <div className="flex items-center gap-1">
               {isPrimaryHost && !participant.is_host && participant.sid !== currentSid && (
