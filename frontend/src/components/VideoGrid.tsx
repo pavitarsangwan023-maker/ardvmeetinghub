@@ -89,7 +89,7 @@ export const VideoGrid = memo(function VideoGrid({ localStream, localUser, remot
       </div>
 
       {/* Desktop Layout: Standard Grid */}
-      <div className={`hidden sm:grid h-full gap-2 p-1 ${gridClass} ${sizeClass} items-center content-center pt-16 pb-20`}>
+      <div className={`hidden sm:grid h-full gap-2 p-1 ${gridClass} ${sizeClass} items-center content-center pt-16 pb-20 overflow-y-auto hide-scrollbar`}>
         {allStreams.map((item) => (
           <VideoTile
             key={item.id}
