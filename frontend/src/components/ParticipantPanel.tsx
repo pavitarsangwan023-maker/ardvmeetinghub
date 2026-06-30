@@ -45,6 +45,7 @@ export function ParticipantPanel({ open, participants, waitingParticipants = [],
                     socket?.emit("force-mute", { meetingId, targetSid: participant.sid, type: "mic" });
                   } else {
                     socket?.emit("request-unmute", { meetingId, targetSid: participant.sid, type: "mic" });
+                    alert(`Request sent to ${participant.name} to unmute their microphone.`);
                   }
                 };
                 return (
@@ -62,6 +63,7 @@ export function ParticipantPanel({ open, participants, waitingParticipants = [],
                     socket?.emit("force-mute", { meetingId, targetSid: participant.sid, type: "camera" });
                   } else {
                     socket?.emit("request-unmute", { meetingId, targetSid: participant.sid, type: "camera" });
+                    alert(`Request sent to ${participant.name} to turn on their video.`);
                   }
                 };
                 return (
