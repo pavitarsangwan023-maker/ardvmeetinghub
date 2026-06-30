@@ -12,6 +12,9 @@ class UserLogin(BaseModel):
     email: EmailStr
     password: str
 
+class GuestLogin(BaseModel):
+    name: str = Field(min_length=2, max_length=120)
+
 class UserResetPassword(BaseModel):
     email: EmailStr
     name: str

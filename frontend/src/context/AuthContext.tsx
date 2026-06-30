@@ -7,6 +7,7 @@ interface AuthContextValue {
   token: string | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
+  guestLogin: (name: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
   setUser: (user: User) => void;
@@ -52,6 +53,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     loading,
     login: async (email, password) => {
       const { data } = await authApi.login({ email, password });
+      localStorage.setItem("pymeet_token", data.access_token);
+      localStorage.setItem("pymeet_user", JSON.stringify(data.user));
+      setToken(data.access_token);
+      setUser(data.user);
+    },
+    guestLogin: async (name) => {
+      const { data } = await authApi.guestLogin({ name });
       localStorage.setItem("pymeet_token", data.access_token);
       localStorage.setItem("pymeet_user", JSON.stringify(data.user));
       setToken(data.access_token);

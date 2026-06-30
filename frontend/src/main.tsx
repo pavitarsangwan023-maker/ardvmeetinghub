@@ -16,10 +16,13 @@ const SchedulerDashboard = lazy(() => import("./pages/SchedulerDashboard").then(
 const PublicBookingPage = lazy(() => import("./pages/PublicBookingPage").then(m => ({ default: m.PublicBookingPage })));
 import "./index.css";
 
+import { useLocation } from "react-router-dom";
+
 function Protected({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
+  const location = useLocation();
   if (loading) return <LoadingScreen />;
-  if (!user) return <Navigate to="/login" replace />;
+  if (!user) return <Navigate to={`/login?redirect=${encodeURIComponent(location.pathname)}`} replace />;
   return <>{children}</>;
 }
 

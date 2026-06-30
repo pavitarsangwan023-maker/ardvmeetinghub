@@ -23,6 +23,7 @@ export interface AuthResponse {
 export const authApi = {
   register: (payload: { name: string; email: string; password: string }) => api.post<AuthResponse>("/api/auth/register", payload),
   login: (payload: { email: string; password: string }) => api.post<AuthResponse>("/api/auth/login", payload),
+  guestLogin: (payload: { name: string }) => api.post<AuthResponse>("/api/auth/guest", payload),
   resetPassword: (payload: { email: string; name: string; new_password: string }) => api.post("/api/auth/reset-password", payload),
   me: () => api.get<User>("/api/auth/me"),
   updateProfile: (payload: { name?: string; email?: string; password?: string; profile_pic?: string | null }) => api.put<User>("/api/auth/profile", payload)
