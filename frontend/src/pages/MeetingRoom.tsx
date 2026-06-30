@@ -9,6 +9,7 @@ import { VideoGrid } from "../components/VideoGrid";
 import { useAuth } from "../context/AuthContext";
 import { useSocket } from "../hooks/useSocket";
 import { useWebRTC } from "../hooks/useWebRTC";
+import { useActiveSpeaker } from "../hooks/useActiveSpeaker";
 import { meetingApi } from "../services/api";
 import type { Meeting, RoomParticipant } from "../types";
 import { PreJoinScreen, type JoinConfig } from "../components/PreJoinScreen";
@@ -40,6 +41,7 @@ export function MeetingRoom() {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const recordedChunksRef = useRef<Blob[]>([]);
   const { localStream, remoteStreams, participants, micEnabled, cameraEnabled, screenSharing, toggleMic, toggleCamera, shareScreen, leave } = useWebRTC(socket, meetingId, Boolean(meeting) && Boolean(joinConfig), joinConfig);
+  const activeSpeakerId = useActiveSpeaker(remoteStreams);
 
   const updateBackground = (type: any, src?: string) => {
     setJoinConfig((prev: any) => prev ? { ...prev, backgroundType: type, backgroundSrc: src } : null);
@@ -470,7 +472,7 @@ export function MeetingRoom() {
           </div>
         )}
       </header>
-      <section className="fixed inset-0 flex h-full w-full items-center justify-center p-4"><VideoGrid localStream={localStream} localUser={localParticipant} remoteStreams={remoteStreams} participants={allParticipants} cameraEnabled={cameraEnabled} screenSharing={screenSharing} /></section>
+      <section className="fixed inset-0 flex h-full w-full items-center justify-center p-4"><VideoGrid localStream={localStream} localUser={localParticipant} remoteStreams={remoteStreams} participants={allParticipants} cameraEnabled={cameraEnabled} screenSharing={screenSharing} activeSpeakerId={activeSpeakerId} /></section>
       <ReactionsOverlay reactions={reactions} />
       {activePanel === "whiteboard" && <Whiteboard socket={socket} isHost={localParticipant?.is_host ?? false} onClose={() => setActivePanel(null)} />}
       <MeetingControls localStream={localStream} isHost={localParticipant?.is_host ?? false} micEnabled={micEnabled} cameraEnabled={cameraEnabled} screenSharing={screenSharing} recordingState={recordingState} unreadChatCount={unreadChatCount} unreadParticipantsCount={activePanel !== "participants" ? waitingParticipants.length : 0} showReactions={activePanel === "reactions"} onToggleMic={toggleMic} onToggleCamera={toggleCamera} onShareScreen={() => { setActivePanel(null); shareScreen(); }} onToggleRecord={handleRecordToggle} onToggleChat={() => togglePanel("chat")} onToggleParticipants={() => togglePanel("participants")} onToggleReactions={() => togglePanel("reactions")} onToggleWhiteboard={() => togglePanel("whiteboard")} onLeave={exit} onEndMeeting={endMeetingForAll} onReact={handleReact} currentBgType={joinConfig?.backgroundType} currentBgSrc={joinConfig?.backgroundSrc} onUpdateBackground={updateBackground} />

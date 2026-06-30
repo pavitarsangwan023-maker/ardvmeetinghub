@@ -47,8 +47,23 @@ export const VideoTile = memo(function VideoTile({ stream, participant, isLocal 
   const hasVideo = stream && stream.getVideoTracks().some((t) => t.enabled && t.readyState === "live");
   const showVideo = cameraEnabled && (isLocal ? hasVideo : Boolean(stream));
 
+  const handleDoubleClick = () => {
+    const tile = videoRef.current?.parentElement;
+    if (!tile) return;
+    
+    if (!document.fullscreenElement) {
+      tile.requestFullscreen().catch((err) => {
+        console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+      });
+    } else {
+      document.exitFullscreen();
+    }
+  };
+
   return (
-    <div className={`group relative flex items-center justify-center overflow-hidden rounded-xl border bg-slate-900 shadow-soft transition-all ${
+    <div 
+      onDoubleClick={handleDoubleClick}
+      className={`group relative flex items-center justify-center overflow-hidden rounded-xl border bg-slate-900 shadow-soft transition-all ${
       active ? "border-cyan-300 ring-2 ring-cyan-300/40" : "border-line"
     }`} style={{ aspectRatio: "16/9", minHeight: "160px" }}>
       <video
