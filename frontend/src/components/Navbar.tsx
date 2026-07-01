@@ -94,9 +94,9 @@ export function Navbar() {
             <span className="text-lg font-bold hidden sm:block">Ardvmeetinghub</span>
           </Link>
           {user && (
-            <Link to="/" className="hidden md:flex items-center gap-2 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors" title="Home">
+            <Link to="/" className="flex items-center gap-2 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors" title="Home">
               <div className="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-white/10"><Home size={18} /></div>
-              <span className="text-sm font-medium">Home</span>
+              <span className="text-sm font-medium hidden sm:block">Home</span>
             </Link>
           )}
         </div>
