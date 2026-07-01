@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from "react";
 import { io, Socket } from "socket.io-client";
 
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || "";
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || "https://api.ardvmeetinghub.com/";
 
 export function useSocket(token: string | null): Socket | null {
   const socket = useMemo(() => {
