@@ -13,8 +13,6 @@ router = APIRouter(prefix="/api/meetings", tags=["Meetings"])
 
 @router.post("", response_model=MeetingOut, status_code=status.HTTP_201_CREATED)
 def create(payload: MeetingCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    if current_user.email not in ["pavitarsangwan023@gmail.com"]:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only the main host can create meetings")
     return create_meeting(db, current_user, payload)
 
 
