@@ -1,11 +1,11 @@
-# PyMeet - Project Explanation Guide
+# Ardvmeetinghub - Project Explanation Guide
 
-Ye document aapko shuru se aakhir tak samjhayega ki **PyMeet** project kaise bana, isme kaun kaun si technologies use hui hain, aur code mein kaun si cheez kahan rakhi hai. Ye guide aapko project samajhne aur kisi aur ko (jaise interviewer ya teacher ko) explain karne mein bahut madad karegi.
+Ye document aapko shuru se aakhir tak samjhayega ki **Ardvmeetinghub** project kaise bana, isme kaun kaun si technologies use hui hain, aur code mein kaun si cheez kahan rakhi hai. Ye guide aapko project samajhne aur kisi aur ko (jaise interviewer ya teacher ko) explain karne mein bahut madad karegi.
 
 ---
 
-## 1. Project Overview (PyMeet kya hai?)
-PyMeet ek **Full-Stack Video Conferencing Web Application** hai, jo bilkul Zoom ya Google Meet ki tarah kaam karta hai. Isme log account bana sakte hain, meeting create kar sakte hain, aur real-time mein ek dusre ko dekh aur sun sakte hain.
+## 1. Project Overview (Ardvmeetinghub kya hai?)
+Ardvmeetinghub ek **Full-Stack Video Conferencing Web Application** hai, jo bilkul Zoom ya Google Meet ki tarah kaam karta hai. Isme log account bana sakte hain, meeting create kar sakte hain, aur real-time mein ek dusre ko dekh aur sun sakte hain.
 
 ### 🛠️ Tech Stack (Kaunsi technology use ki gayi?)
 - **Frontend (UI & Design):** React.js, TypeScript, Vite, Tailwind CSS.

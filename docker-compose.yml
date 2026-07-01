@@ -3,15 +3,15 @@ services:
     image: postgres:16-alpine
     restart: always
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-pymeet}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pymeet_password}
-      POSTGRES_DB: ${POSTGRES_DB:-pymeet}
+      POSTGRES_USER: ${POSTGRES_USER:-ardvmeetinghub}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ardvmeetinghub_password}
+      POSTGRES_DB: ${POSTGRES_DB:-ardvmeetinghub}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-pymeet}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ardvmeetinghub}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -20,7 +20,7 @@ services:
     build: ./backend
     restart: always
     environment:
-      DATABASE_URL: ${DATABASE_URL:-postgresql://pymeet:pymeet_password@postgres:5432/pymeet}
+      DATABASE_URL: ${DATABASE_URL:-postgresql://ardvmeetinghub:ardvmeetinghub_password@postgres:5432/ardvmeetinghub}
       JWT_SECRET_KEY: ${JWT_SECRET_KEY:-replace-with-a-long-random-secret}
       FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:-http://localhost:5173}
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}

@@ -1,6 +1,6 @@
-# PyMeet - Zoom Clone
+# Ardvmeetinghub - Zoom Clone
 
-PyMeet is a production-style video conferencing application built with FastAPI, SQLAlchemy, JWT auth, Socket.IO signaling, React, TypeScript, TailwindCSS, Framer Motion, and the browser WebRTC APIs.
+Ardvmeetinghub is a production-style video conferencing application built with FastAPI, SQLAlchemy, JWT auth, Socket.IO signaling, React, TypeScript, TailwindCSS, Framer Motion, and the browser WebRTC APIs.
 
 ## Features
 

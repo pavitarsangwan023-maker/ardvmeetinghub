@@ -58,7 +58,7 @@ export function Login() {
   return (
     <main className="bg-premium grid min-h-screen grid-cols-1 text-slate-900 dark:text-white transition-colors lg:grid-cols-[1.1fr_0.9fr]">
       <section className="flex flex-col justify-between p-6 lg:p-12">
-        <div className="flex items-center gap-3"><span className="grid h-11 w-11 place-items-center rounded-lg bg-cyan-400 text-slate-950"><Video size={24} /></span><span className="text-2xl font-extrabold">PyMeet</span></div>
+        <div className="flex items-center gap-3"><span className="grid h-11 w-11 place-items-center rounded-lg bg-cyan-400 text-slate-950"><Video size={24} /></span><span className="text-2xl font-extrabold">Ardvmeetinghub</span></div>
         <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} className="my-16 max-w-2xl">
           <h1 className="text-4xl font-extrabold leading-tight sm:text-6xl text-slate-900 dark:text-white">Premium meetings for teams that move fast.</h1>
           <p className="mt-5 max-w-xl text-lg text-slate-600 dark:text-slate-300">Launch secure video rooms, collaborate in real time, and keep every conversation close to the work.</p>
@@ -90,7 +90,7 @@ export function Login() {
               <span className="h-px flex-1 bg-slate-200 dark:bg-slate-700"></span>
             </div>
             <button onClick={() => setView("guest_join")} className="mt-4 w-full rounded-lg border border-slate-300 dark:border-line py-3 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">Join a Meeting as Guest</button>
-            <p className="mt-5 text-center text-sm text-slate-500 dark:text-slate-400">New to PyMeet? <Link to="/register" className="font-semibold text-cyan-600 dark:text-cyan-300">Create an account</Link></p>
+            <p className="mt-5 text-center text-sm text-slate-500 dark:text-slate-400">New to Ardvmeetinghub? <Link to="/register" className="font-semibold text-cyan-600 dark:text-cyan-300">Create an account</Link></p>
           </Card>
         ) : (
           <Card className="w-full max-w-md p-6 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200 dark:border-white/5">

@@ -12,7 +12,7 @@ const ALLOWED_EMAILS = ["amit.siss2024@gmail.com", "pavitarsangwan023@gmail.com"
 export function CreateMeeting() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [title, setTitle] = useState("PyMeet Meeting");
+  const [title, setTitle] = useState("Ardvmeetinghub Meeting");
   const [waiting, setWaiting] = useState(true);
   const [isScheduled, setIsScheduled] = useState(false);
   const [scheduledDate, setScheduledDate] = useState("");

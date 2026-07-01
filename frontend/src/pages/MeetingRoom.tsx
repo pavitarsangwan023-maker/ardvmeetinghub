@@ -282,7 +282,7 @@ export function MeetingRoom() {
             style={{ animationDuration: "3s" }} 
           />
           <h2 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-fuchsia-400 mb-3 tracking-tight">
-            Thank You for using PyMeet!
+            Thank You for using Ardvmeetinghub!
           </h2>
           <p className="text-slate-300 mb-8 max-w-sm text-lg font-medium">
             Your meeting has ended successfully. Have a great day ahead!
@@ -335,7 +335,7 @@ export function MeetingRoom() {
         document.body.appendChild(a);
         a.style.display = "none";
         a.href = url;
-        a.download = `PyMeet_Recording_${new Date().toISOString().slice(0, 10)}.webm`;
+        a.download = `Ardvmeetinghub_Recording_${new Date().toISOString().slice(0, 10)}.webm`;
         a.click();
         window.URL.revokeObjectURL(url);
         recordedChunksRef.current = [];
@@ -427,7 +427,7 @@ export function MeetingRoom() {
           <div className="flex items-center gap-2 cursor-pointer group select-none" onClick={() => setShowMeetingInfo(!showMeetingInfo)}>
             <Shield size={18} className="text-green-500" />
             <h1 className="font-semibold text-slate-900 dark:text-white flex items-center gap-1.5">
-              {meeting?.title || "PyMeet Meeting"} 
+              {meeting?.title || "Ardvmeetinghub Meeting"} 
               <span className="text-slate-400 group-hover:text-slate-300 transition-colors">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
               </span>
@@ -438,7 +438,7 @@ export function MeetingRoom() {
             <>
               <div className="fixed inset-0 z-10" onClick={() => setShowMeetingInfo(false)} />
               <div className="absolute top-full left-0 mt-3 w-[340px] rounded-2xl border border-slate-700 bg-slate-900/95 p-4 shadow-2xl backdrop-blur-xl z-20 animate-in fade-in slide-in-from-top-2">
-                <h3 className="text-sm font-bold text-white mb-4 border-b border-slate-800 pb-2">{meeting?.title || "PyMeet Meeting"}</h3>
+                <h3 className="text-sm font-bold text-white mb-4 border-b border-slate-800 pb-2">{meeting?.title || "Ardvmeetinghub Meeting"}</h3>
                 
                 <div className="flex flex-col gap-3">
                   <div className="flex flex-col gap-1">

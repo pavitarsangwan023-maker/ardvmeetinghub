@@ -360,7 +360,7 @@ export function PreJoinScreen({ meetingTitle, isHost, onJoin }: PreJoinScreenPro
                 type="button"
                 disabled={updatingAvatar}
                 onClick={() => {
-                  const options = Array.from({ length: 4 }).map((_, i) => `https://api.dicebear.com/7.x/bottts/svg?seed=${user?.email || "pymeet"}${i}${Date.now()}`);
+                  const options = Array.from({ length: 4 }).map((_, i) => `https://api.dicebear.com/7.x/bottts/svg?seed=${user?.email || "ardvmeetinghub"}${i}${Date.now()}`);
                   setAvatarOptions(options);
                   setShowAvatarPicker(!showAvatarPicker);
                 }}
@@ -383,7 +383,7 @@ export function PreJoinScreen({ meetingTitle, isHost, onJoin }: PreJoinScreenPro
                 </div>
                 <div className="mt-2 text-center">
                   <button type="button" disabled={updatingAvatar} onClick={() => {
-                    setAvatarOptions(Array.from({ length: 4 }).map((_, i) => `https://api.dicebear.com/7.x/bottts/svg?seed=${user?.email || "pymeet"}${i}${Date.now()}`));
+                    setAvatarOptions(Array.from({ length: 4 }).map((_, i) => `https://api.dicebear.com/7.x/bottts/svg?seed=${user?.email || "ardvmeetinghub"}${i}${Date.now()}`));
                   }} className="text-xs text-cyan-400 hover:underline">Shuffle</button>
                 </div>
               </div>

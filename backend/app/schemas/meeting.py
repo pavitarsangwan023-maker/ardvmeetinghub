@@ -5,7 +5,7 @@ from app.schemas.user import UserOut
 
 
 class MeetingCreate(BaseModel):
-    title: str = Field(default="PyMeet Meeting", min_length=1, max_length=180)
+    title: str = Field(default="Ardvmeetinghub Meeting", min_length=1, max_length=180)
     waiting_room_enabled: bool = True
     scheduled_for: datetime | None = None
     duration_limit_minutes: int | None = None

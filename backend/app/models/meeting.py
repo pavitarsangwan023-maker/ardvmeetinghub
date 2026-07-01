@@ -10,7 +10,7 @@ class Meeting(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     meeting_id: Mapped[str] = mapped_column(String(32), unique=True, index=True, nullable=False)
-    title: Mapped[str] = mapped_column(String(180), nullable=False, default="PyMeet Meeting")
+    title: Mapped[str] = mapped_column(String(180), nullable=False, default="Ardvmeetinghub Meeting")
     host_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
     waiting_room_enabled: Mapped[bool] = mapped_column(Boolean, default=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)

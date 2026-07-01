@@ -35,7 +35,7 @@ def guest_login(request: Request, payload: GuestLogin, db: Session = Depends(get
     
     # Create a random email and password for the guest
     guest_id = str(uuid.uuid4())
-    guest_email = f"guest_{guest_id[:8]}@guest.pymeet.app"
+    guest_email = f"guest_{guest_id[:8]}@guest.ardvmeetinghub.app"
     guest_password = guest_id
     
     guest_payload = UserCreate(name=guest_name, email=guest_email, password=guest_password)

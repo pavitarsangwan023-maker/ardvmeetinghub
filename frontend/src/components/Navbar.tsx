@@ -93,7 +93,7 @@ export function Navbar() {
             <span className="grid h-9 w-9 place-items-center rounded-lg bg-cyan-400 text-slate-950">
               <Video size={20} />
             </span>
-            <span className="text-lg font-bold">PyMeet</span>
+            <span className="text-lg font-bold">Ardvmeetinghub</span>
           </Link>
           {user && (
             <Link to="/" className="flex items-center gap-2 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors" title="Home">

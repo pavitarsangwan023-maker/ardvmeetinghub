@@ -12,11 +12,11 @@ export function Dashboard() {
   const navigate = useNavigate();
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [showNotes, setShowNotes] = useState(false);
-  const [notesText, setNotesText] = useState(localStorage.getItem('pymeet_notes') || '');
+  const [notesText, setNotesText] = useState(localStorage.getItem('ardvmeetinghub_notes') || '');
   const [saveText, setSaveText] = useState("Save Notes");
 
   useEffect(() => {
-    localStorage.setItem('pymeet_notes', notesText);
+    localStorage.setItem('ardvmeetinghub_notes', notesText);
   }, [notesText]);
 
   useEffect(() => {
@@ -185,7 +185,7 @@ export function Dashboard() {
               <span className="text-xs text-slate-400 dark:text-slate-500">Auto-saved locally</span>
               <Button 
                 onClick={() => {
-                  localStorage.setItem('pymeet_notes', notesText);
+                  localStorage.setItem('ardvmeetinghub_notes', notesText);
                   setSaveText("Saved! ✓");
                   setTimeout(() => setShowNotes(false), 800);
                 }} 

@@ -172,7 +172,7 @@ export function Whiteboard({ socket, isHost, onClose }: WhiteboardProps) {
     tCtx.drawImage(canvas, 0, 0);
 
     const link = document.createElement("a");
-    link.download = `pymeet-whiteboard-${new Date().getTime()}.png`;
+    link.download = `ardvmeetinghub-whiteboard-${new Date().getTime()}.png`;
     link.href = tempCanvas.toDataURL("image/png");
     link.click();
   };

@@ -135,7 +135,7 @@ export function PublicBookingPage() {
             <p className="font-semibold text-white">{profile.title} with {profile.host_name}</p>
             <p className="text-sm text-slate-400 flex items-center gap-2"><CalendarIcon size={14}/> {selectedDate?.toLocaleDateString()}</p>
             <p className="text-sm text-slate-400 flex items-center gap-2"><Clock size={14}/> {selectedTime ? formatTime12h(selectedTime) : ""}</p>
-            <p className="text-sm text-slate-400 flex items-center gap-2"><Video size={14}/> PyMeet Video Call</p>
+            <p className="text-sm text-slate-400 flex items-center gap-2"><Video size={14}/> Ardvmeetinghub Video Call</p>
           </div>
           <Button variant="primary" className="w-full bg-cyan-600 hover:bg-cyan-500 text-white" onClick={() => navigate(`/meeting/${bookedMeetingId}`)}>Join Meeting Now</Button>
         </Card>

@@ -3,9 +3,9 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    app_name: str = "PyMeet"
+    app_name: str = "Ardvmeetinghub"
     environment: str = "development"
-    database_url: str = "sqlite:///./pymeet.db"
+    database_url: str = "sqlite:///./ardvmeetinghub.db"
     jwt_secret_key: str = "change-me-in-production"
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 60 * 24

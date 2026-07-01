@@ -10,9 +10,9 @@ export default defineConfig({
       injectRegister: "auto",
       includeAssets: ["favicon.ico", "apple-touch-icon.png", "icon.svg"],
       manifest: {
-        name: "Pymeet Workplace",
-        short_name: "Pymeet",
-        description: "Pymeet - Video Conferencing App",
+        name: "Ardvmeetinghub Workplace",
+        short_name: "Ardvmeetinghub",
+        description: "Ardvmeetinghub - Video Conferencing App",
         theme_color: "#0a0f1f",
         background_color: "#0a0f1f",
         display: "standalone",
