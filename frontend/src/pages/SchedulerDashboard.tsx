@@ -14,8 +14,13 @@ export function SchedulerDashboard() {
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState<any>(null);
 
+  const [error, setError] = useState<string>("");
+  const [loading, setLoading] = useState(true);
+
   const loadData = async () => {
     try {
+      setLoading(true);
+      setError("");
       const [{ data: prof }, { data: mtgs }] = await Promise.all([
         schedulerApi.getProfile(),
         meetingApi.list()
@@ -24,8 +29,11 @@ export function SchedulerDashboard() {
       setEditData(prof);
       const sorted = mtgs.filter(m => m.scheduled_for && !m.started_at && m.is_active).sort((a: any, b: any) => new Date(a.scheduled_for).getTime() - new Date(b.scheduled_for).getTime());
       setMeetings(sorted);
-    } catch (err) {
-      console.error("Failed to load scheduler data");
+    } catch (err: any) {
+      console.error("Failed to load scheduler data", err);
+      setError(err.response?.data?.detail || err.message || "Failed to load scheduler data.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -150,8 +158,12 @@ export function SchedulerDashboard() {
                     <Button variant="secondary" onClick={() => { setEditData(profile); setIsEditing(false); }}>Cancel</Button>
                   </div>
                 </div>
+              ) : loading ? (
+                <div className="py-8 text-center text-slate-500">Loading...</div>
+              ) : error ? (
+                <div className="py-8 text-center text-rose-500 bg-rose-500/10 rounded-lg border border-rose-500/20">{error}</div>
               ) : (
-                <div className="py-8 text-center text-slate-400">Loading...</div>
+                <div className="py-8 text-center text-slate-400">Profile data unavailable</div>
               )}
             </Card>
 
