@@ -55,6 +55,7 @@ sid_to_room: dict[str, str] = {}
 sid_to_user: dict[str, RoomUser] = {}
 waiting_rooms: dict[str, dict[str, RoomUser]] = {}
 chat_enabled_rooms: dict[str, bool] = {}
+admitted_users_by_meeting: dict[str, set[int]] = {}
 
 
 def _serialize(room: dict[str, RoomUser]) -> list[dict[str, Any]]:
@@ -122,8 +123,9 @@ async def join_room(sid: str, data: dict[str, Any]):
 
     room = rooms.setdefault(meeting_id, {})
     waiting = waiting_rooms.setdefault(meeting_id, {})
+    admitted = admitted_users_by_meeting.setdefault(meeting_id, set())
 
-    if meeting.waiting_room_enabled and not user.is_host:
+    if meeting.waiting_room_enabled and not user.is_host and user.id not in admitted:
         user.is_waiting = True
         waiting[sid] = user
         await sio.enter_room(sid, f"waiting:{meeting_id}")
@@ -131,6 +133,7 @@ async def join_room(sid: str, data: dict[str, Any]):
         await sio.emit("waiting-list", {"participants": _serialize(waiting)}, room=meeting_id)
         return
 
+    admitted.add(user.id)
     user.is_waiting = False
     room[sid] = user
     sid_to_room[sid] = meeting_id
@@ -196,6 +199,10 @@ async def admit_participant(sid: str, data: dict[str, Any]):
     if not user:
         return
     user.is_waiting = False
+    
+    admitted = admitted_users_by_meeting.setdefault(meeting_id, set())
+    admitted.add(user.id)
+    
     rooms.setdefault(meeting_id, {})[target_sid] = user
     sid_to_room[target_sid] = meeting_id
     await sio.leave_room(target_sid, f"waiting:{meeting_id}")
@@ -285,6 +292,7 @@ async def handle_end_meeting(sid: str, data: dict[str, Any]):
             db.commit()
     finally:
         db.close()
+    admitted_users_by_meeting.pop(meeting_id, None)
     await sio.emit("meeting-ended", room=meeting_id)
 
 
@@ -357,6 +365,9 @@ async def remove_participant(sid: str, data: dict[str, Any]):
 
     target = room.pop(target_sid, None)
     if target:
+        if meeting_id in admitted_users_by_meeting and target.id in admitted_users_by_meeting[meeting_id]:
+            admitted_users_by_meeting[meeting_id].remove(target.id)
+            
         await asyncio.to_thread(_sync_end_participation, meeting_id, target.id, True)
         await sio.emit("removed-from-room", {"meetingId": meeting_id}, to=target_sid)
         await sio.disconnect(target_sid)

@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from datetime import datetime, timezone
+import os
 
 from app.database import get_db
 from app.models.user import User
@@ -25,18 +26,6 @@ def history(db: Session = Depends(get_db), current_user: User = Depends(get_curr
 def details(meeting_id: str, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     meeting = get_meeting(db, meeting_id)
     
-    # Auto-expire if older than 1 hour
-    if meeting.is_active and not meeting.ended_at:
-        now_utc = datetime.now(timezone.utc)
-        if meeting.created_at.tzinfo is None:
-            now_utc = now_utc.replace(tzinfo=None)
-        age = now_utc - meeting.created_at
-        if age.total_seconds() > 3600:
-            meeting.is_active = False
-            meeting.ended_at = now_utc
-            db.commit()
-            db.refresh(meeting)
-
     if meeting.host_id == current_user.id and not meeting.is_active and not meeting.ended_at:
         meeting.is_active = True
         db.commit()
@@ -53,18 +42,6 @@ def details(meeting_id: str, db: Session = Depends(get_db), current_user: User =
 def join(payload: MeetingJoin, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     meeting = get_meeting(db, payload.meeting_id)
     
-    # Auto-expire if older than 1 hour
-    if meeting.is_active and not meeting.ended_at:
-        now_utc = datetime.now(timezone.utc)
-        if meeting.created_at.tzinfo is None:
-            now_utc = now_utc.replace(tzinfo=None)
-        age = now_utc - meeting.created_at
-        if age.total_seconds() > 3600:
-            meeting.is_active = False
-            meeting.ended_at = now_utc
-            db.commit()
-            db.refresh(meeting)
-
     if meeting.host_id == current_user.id and not meeting.is_active and not meeting.ended_at:
         meeting.is_active = True
         db.commit()
@@ -109,3 +86,31 @@ def get_chat(meeting_id: str, db: Session = Depends(get_db), current_user: User 
         }
         for msg in messages
     ]
+
+@router.get("/turn/credentials")
+def get_turn_credentials():
+    account_sid = os.environ.get("TWILIO_ACCOUNT_SID")
+    auth_token = os.environ.get("TWILIO_AUTH_TOKEN")
+    
+    if not account_sid or not auth_token:
+        # Fallback to public google stun
+        return {
+            "iceServers": [
+                {"urls": ["stun:stun.l.google.com:19302", "stun:stun1.l.google.com:19302"]}
+            ]
+        }
+        
+    try:
+        from twilio.rest import Client
+        client = Client(account_sid, auth_token)
+        token = client.tokens.create()
+        return {
+            "iceServers": token.ice_servers
+        }
+    except Exception as e:
+        print(f"Error generating Twilio token: {e}")
+        return {
+            "iceServers": [
+                {"urls": ["stun:stun.l.google.com:19302", "stun:stun1.l.google.com:19302"]}
+            ]
+        }

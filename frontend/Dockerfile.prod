@@ -1,0 +1,21 @@
+# Build stage
+FROM node:20-alpine as build
+WORKDIR /app
+COPY package.json package-lock.json* ./
+RUN npm install
+COPY . .
+# We don't set VITE_ variables here because they can be injected or we just build with relative paths
+# However, for Vite, we should make sure API calls hit /api and socket hits /
+# Since Nginx proxies /api to backend and /socket.io to backend, frontend can just use relative URLs!
+# Wait, VITE_API_URL and VITE_SOCKET_URL need to be relative.
+# Let's write a small shell script to build with the right env vars or just use relative.
+ENV VITE_API_URL=/api
+ENV VITE_SOCKET_URL=/
+RUN npm run build
+
+# Serve stage
+FROM nginx:alpine
+COPY --from=build /app/dist /usr/share/nginx/html
+# Nginx config will be mounted from docker-compose
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]

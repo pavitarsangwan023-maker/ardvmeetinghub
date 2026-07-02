@@ -41,51 +41,7 @@ def get_meeting(db: Session, meeting_id: str) -> Meeting:
     if not meeting:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Meeting not found")
     
-    # Auto-end old, abandoned, or finished meetings
-    if meeting.is_active:
-        now = datetime.now(timezone.utc).replace(tzinfo=None)
-        
-        # Case 1: Meeting has been started
-        if meeting.started_at:
-            # Check if the host is currently connected in the meeting
-            host_in_meeting = db.query(MeetingParticipant).filter(
-                MeetingParticipant.meeting_id_fk == meeting.id,
-                MeetingParticipant.user_id == meeting.host_id,
-                MeetingParticipant.left_at.is_(None)
-            ).first()
-            
-            if not host_in_meeting:
-                # Find the host's latest disconnect/leave time
-                last_leave = db.query(MeetingParticipant.left_at).filter(
-                    MeetingParticipant.meeting_id_fk == meeting.id,
-                    MeetingParticipant.user_id == meeting.host_id,
-                    MeetingParticipant.left_at.is_not(None)
-                ).order_by(MeetingParticipant.left_at.desc()).first()
-                
-                if last_leave:
-                    leave_time = last_leave[0].replace(tzinfo=None)
-                    # If host left more than 1 minute (60s) ago, close the meeting
-                    if (now - leave_time).total_seconds() > 60:
-                        meeting.is_active = False
-                        meeting.ended_at = now
-                        db.commit()
-                        db.refresh(meeting)
-                else:
-                    # If host has never registered a leave, check time since start (older than 10 minutes)
-                    start_time = meeting.started_at.replace(tzinfo=None)
-                    if (now - start_time).total_seconds() > 600:
-                        meeting.is_active = False
-                        meeting.ended_at = now
-                        db.commit()
-                        db.refresh(meeting)
-        else:
-            # Case 2: Meeting was never started (scheduled) - auto-expire after 2 hours
-            created_time = meeting.created_at.replace(tzinfo=None)
-            if (now - created_time).total_seconds() > 7200:  # 2 hours
-                meeting.is_active = False
-                meeting.ended_at = now
-                db.commit()
-                db.refresh(meeting)
+
                 
     return meeting
 

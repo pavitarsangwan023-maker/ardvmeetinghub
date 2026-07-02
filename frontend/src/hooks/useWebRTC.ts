@@ -9,13 +9,16 @@ interface RemoteStream {
   participant?: RoomParticipant;
 }
 
-const ICE_SERVERS: RTCConfiguration = {
-  iceServers: [{ urls: ["stun:stun.l.google.com:19302", "stun:stun1.l.google.com:19302"] }]
+const DEFAULT_ICE_SERVERS: RTCConfiguration = {
+  iceServers: [
+    { urls: ["stun:stun.l.google.com:19302", "stun:stun1.l.google.com:19302"] }
+  ]
 };
 
 import type { JoinConfig } from "../components/PreJoinScreen";
 
 export function useWebRTC(socket: Socket | null, meetingId: string, enabled: boolean, joinConfig?: JoinConfig | null) {
+  const [iceServers, setIceServers] = useState<RTCConfiguration>(DEFAULT_ICE_SERVERS);
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [remoteStreams, setRemoteStreams] = useState<RemoteStream[]>([]);
   const [participants, setParticipants] = useState<RoomParticipant[]>([]);
@@ -47,6 +50,15 @@ export function useWebRTC(socket: Socket | null, meetingId: string, enabled: boo
     }
   }, [processedStream, localStream]);
 
+  useEffect(() => {
+    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:8000"}/api/meetings/turn/credentials`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.iceServers) setIceServers({ iceServers: data.iceServers });
+      })
+      .catch((err) => console.error("Failed to fetch TURN servers:", err));
+  }, []);
+
   const updateParticipants = useCallback((next: RoomParticipant[]) => {
     participantsRef.current = next;
     setParticipants(next);
@@ -57,7 +69,7 @@ export function useWebRTC(socket: Socket | null, meetingId: string, enabled: boo
     if (!socket) throw new Error("Socket is not connected");
     const existing = peers.current.get(targetSid);
     if (existing) return existing;
-    const pc = new RTCPeerConnection(ICE_SERVERS);
+    const pc = new RTCPeerConnection(iceServers);
     (processedStream || localStreamRef.current)?.getTracks().forEach((track) => pc.addTrack(track, (processedStream || localStreamRef.current) as MediaStream));
     pc.onicecandidate = (event) => {
       if (event.candidate) socket.emit("ice-candidate", { to: targetSid, candidate: event.candidate });
@@ -76,7 +88,7 @@ export function useWebRTC(socket: Socket | null, meetingId: string, enabled: boo
     };
     peers.current.set(targetSid, pc);
     return pc;
-  }, [socket, processedStream]);
+  }, [socket, processedStream, iceServers]);
 
   const callPeer = useCallback(async (targetSid: string) => {
     if (!socket || targetSid === socket.id) return;
@@ -89,6 +101,12 @@ export function useWebRTC(socket: Socket | null, meetingId: string, enabled: boo
   useEffect(() => {
     if (!enabled || !socket || !joinConfig) return;
     let cancelled = false;
+    
+    const join = () => {
+      socket.emit("join-room", { meetingId, micEnabled: joinConfig.micEnabled, cameraEnabled: joinConfig.cameraEnabled });
+    };
+    
+    socket.on("connect", join);
     
     const constraints: MediaStreamConstraints = {
       audio: joinConfig.audioDeviceId ? { 
@@ -114,8 +132,11 @@ export function useWebRTC(socket: Socket | null, meetingId: string, enabled: boo
     };
 
     if (!navigator.mediaDevices) {
-      socket.emit("join-room", { meetingId, micEnabled: false, cameraEnabled: false });
-      return () => { cancelled = true; };
+      join();
+      return () => { 
+        cancelled = true; 
+        socket.off("connect", join);
+      };
     }
 
     navigator.mediaDevices.getUserMedia(constraints)
@@ -137,15 +158,15 @@ export function useWebRTC(socket: Socket | null, meetingId: string, enabled: boo
 
         localStreamRef.current = stream;
         setLocalStream(stream);
-        socket.emit("join-room", { meetingId, micEnabled: joinConfig.micEnabled, cameraEnabled: joinConfig.cameraEnabled });
+        join();
       })
       .catch(() => {
-        socket.emit("join-room", { meetingId, micEnabled: joinConfig.micEnabled, cameraEnabled: joinConfig.cameraEnabled });
+        if (!cancelled) join();
       });
 
     return () => {
       cancelled = true;
-
+      socket.off("connect", join);
       peers.current.forEach((peer) => peer.close());
       peers.current.clear();
     };

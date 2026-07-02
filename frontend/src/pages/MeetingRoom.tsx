@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Copy, Shield } from "lucide-react";
+import { Copy, Shield, QrCode } from "lucide-react";
+import { QRModal } from "../components/QRModal";
 import { ChatPanel } from "../components/ChatPanel";
 import { MeetingControls } from "../components/MeetingControls";
 import { ParticipantPanel } from "../components/ParticipantPanel";
@@ -30,6 +31,7 @@ export function MeetingRoom() {
   const [showThankYou, setShowThankYou] = useState(false);
   const [showMeetingInfo, setShowMeetingInfo] = useState(false);
   const [waitingParticipants, setWaitingParticipants] = useState<RoomParticipant[]>([]);
+  const [showQR, setShowQR] = useState(false);
   const [reactions, setReactions] = useState<Reaction[]>([]);
   const [chatEnabled, setChatEnabled] = useState(true);
   const [durationLimit, setDurationLimit] = useState<number | null>(null);
@@ -444,11 +446,14 @@ export function MeetingRoom() {
                   <div className="flex flex-col gap-1">
                     <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Invite Link</span>
                     <div className="flex items-center gap-2">
-                      <span className="text-sm text-cyan-400 truncate flex-1">{window.location.origin}/meeting/{meetingId}</span>
-                      <button onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/meeting/${meetingId}`); alert("Link copied!"); }} className="p-1.5 rounded-md hover:bg-slate-800 text-slate-300 transition" title="Copy Link">
-                        <Copy size={14} />
-                      </button>
-                    </div>
+                        <span className="text-sm text-cyan-400 truncate flex-1">{window.location.origin}/meeting/{meetingId}</span>
+                        <button onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/meeting/${meetingId}`); alert("Link copied!"); }} className="p-1.5 rounded-md hover:bg-slate-800 text-slate-300 transition" title="Copy Link">
+                          <Copy size={14} />
+                        </button>
+                        <button onClick={() => { setShowMeetingInfo(false); setShowQR(true); }} className="p-1.5 rounded-md hover:bg-cyan-500/20 text-cyan-400 transition" title="Show QR Code">
+                          <QrCode size={14} />
+                        </button>
+                      </div>
                   </div>
                   
                   <div className="flex flex-col gap-1">
@@ -478,6 +483,7 @@ export function MeetingRoom() {
       <MeetingControls localStream={localStream} isHost={localParticipant?.is_host ?? false} micEnabled={micEnabled} cameraEnabled={cameraEnabled} screenSharing={screenSharing} recordingState={recordingState} unreadChatCount={unreadChatCount} unreadParticipantsCount={activePanel !== "participants" ? waitingParticipants.length : 0} showReactions={activePanel === "reactions"} onToggleMic={toggleMic} onToggleCamera={toggleCamera} onShareScreen={() => { setActivePanel(null); shareScreen(); }} onToggleRecord={handleRecordToggle} onToggleChat={() => togglePanel("chat")} onToggleParticipants={() => togglePanel("participants")} onToggleReactions={() => togglePanel("reactions")} onToggleWhiteboard={() => togglePanel("whiteboard")} onLeave={exit} onEndMeeting={endMeetingForAll} onReact={handleReact} currentBgType={joinConfig?.backgroundType} currentBgSrc={joinConfig?.backgroundSrc} onUpdateBackground={updateBackground} />
       <ChatPanel meetingId={meetingId} open={activePanel === "chat"} socket={socket} localUser={localParticipant} participants={allParticipants} chatEnabled={chatEnabled} onClose={() => setActivePanel(null)} onNewMessage={() => { if (activePanel !== "chat") setUnreadChatCount((c) => c + 1); }} />
       <ParticipantPanel open={activePanel === "participants"} participants={allParticipants} waitingParticipants={waitingParticipants} socket={socket} meetingId={meetingId} currentSid={socket?.id || "local"} onClose={() => setActivePanel(null)} localMicEnabled={micEnabled} localCameraEnabled={cameraEnabled} />
+      {showQR && <QRModal meetingId={meetingId} onClose={() => setShowQR(false)} />}
     </main>
   );
 }
