@@ -13,7 +13,7 @@ export function Register() {
   const [busy, setBusy] = useState(false);
   const submit = async (event: FormEvent) => {
     event.preventDefault(); setBusy(true); setError("");
-    try { await register(form.name, form.email, form.password); navigate("/"); } catch (err: any) { setError(err.response?.data?.detail || "Unable to create account. Please try again."); } finally { setBusy(false); }
+    try { await register(form.name, form.email, form.password); navigate("/"); } catch (err: any) { const d = err.response?.data?.detail; setError(typeof d === 'string' ? d : Array.isArray(d) ? d[0].msg : "Unable to create account. Please try again."); } finally { setBusy(false); }
   };
   return (
     <main className="bg-premium grid min-h-screen place-items-center p-6 text-slate-900 dark:text-white transition-colors">

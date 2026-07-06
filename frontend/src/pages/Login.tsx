@@ -49,7 +49,8 @@ export function Login() {
         setResetSuccess("");
       }, 1000);
     } catch (err: any) {
-      setResetError(err.response?.data?.detail || "Verification failed. Check your email and name.");
+      const d = err.response?.data?.detail;
+      setResetError(typeof d === 'string' ? d : Array.isArray(d) ? d[0].msg : "Failed to reset password. Please check your details.");
     } finally {
       setResetBusy(false);
     }
