@@ -51,7 +51,8 @@ export function useWebRTC(socket: Socket | null, meetingId: string, enabled: boo
   }, [processedStream, localStream]);
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:8000"}/api/meetings/turn/credentials`)
+    const baseUrl = typeof import.meta.env.VITE_API_URL !== 'undefined' ? import.meta.env.VITE_API_URL : "http://localhost:8000";
+    fetch(`${baseUrl}/api/meetings/turn/credentials`)
       .then((res) => res.json())
       .then((data) => {
         if (data.iceServers) setIceServers({ iceServers: data.iceServers });
